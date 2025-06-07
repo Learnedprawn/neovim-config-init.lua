@@ -11,7 +11,9 @@ vim.g.have_nerd_font = true
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
-
+vim.opt.expandtab = true -- Disable automatically converting tabs to spaces
+vim.opt.tabstop = 4 -- Set tab width to 4 spaces (or your preferred value)
+vim.opt.shiftwidth = 4 -- (Optional) Match indentation size with tab width
 -- Make line numbers default
 vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
@@ -197,7 +199,76 @@ require("lazy").setup({
 			},
 		},
 	},
-
+	--CUSTOM PLUGINSSSS!!!!!!!!!
+	{
+		"stevearc/oil.nvim",
+		---@module 'oil'
+		---@type oil.SetupOpts
+		opts = {},
+		-- Optional dependencies
+		dependencies = { { "echasnovski/mini.icons", opts = {} } },
+		-- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
+		-- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
+		lazy = false,
+		config = function()
+			print("Oil config ran!")
+			require("oil").setup()
+			vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+		end,
+	},
+	-- add this to your lua/plugins.lua, lua/plugins/init.lua,  or the file you keep your other plugins:
+	{
+		"numToStr/Comment.nvim",
+		opts = {},
+		config = function()
+			require("Comment").setup()
+		end,
+	},
+	-- {
+	--   'nvim-neo-tree/neo-tree.nvim',
+	--   branch = 'v3.x',
+	--   dependencies = {
+	--     'nvim-lua/plenary.nvim',
+	--     'nvim-tree/nvim-web-devicons', -- not strictly required, but recommended
+	--     'MunifTanjim/nui.nvim',
+	--     -- {"3rd/image.nvim", opts = {}}, -- Optional image support in preview window: See `# Preview Mode` for more information
+	--   },
+	--   lazy = false, -- neo-tree will lazily load itself
+	--   ---@module "neo-tree"
+	--   ---@type neotree.Config?
+	--   opts = {
+	--     -- fill any relevant options here
+	--   },
+	-- },
+	{
+		"goolord/alpha-nvim",
+		-- dependencies = { 'echasnovski/mini.icons' },
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+		config = function()
+			local startify = require("alpha.themes.startify")
+			-- available: devicons, mini, default is mini
+			-- if provider not loaded and enabled is true, it will try to use another provider
+			startify.file_icons.provider = "devicons"
+			require("alpha").setup(startify.config)
+		end,
+	},
+	{
+		"okuuva/auto-save.nvim",
+		version = "^1.0.0", -- see https://devhints.io/semver, alternatively use '*' to use the latest tagged release
+		cmd = "ASToggle", -- optional for lazy loading on command
+		event = { "InsertLeave", "TextChanged" }, -- optional for lazy loading on trigger events
+		opts = {
+			-- your config goes here
+			-- or just leave it empty :)
+		},
+	},
+	{
+		"windwp/nvim-autopairs",
+		event = "InsertEnter",
+		config = true,
+		-- use opts = {} for passing setup options
+		-- this is equivalent to setup({}) function
+	},
 	-- NOTE: Plugins can also be configured to run Lua code when they are loaded.
 	--
 	-- This is often very useful to both group configuration, as well as handle
@@ -350,6 +421,7 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>sr", builtin.resume, { desc = "[S]earch [R]esume" })
 			vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
 			vim.keymap.set("n", "<leader><leader>", builtin.buffers, { desc = "[ ] Find existing buffers" })
+			--vim.keymap.set('n', '<leader>sd', builtin.find_files { find_command = { 'fd', '-t=d' } }, { desc = '[D]irectories' })
 
 			-- Slightly advanced example of overriding default behavior and theme
 			vim.keymap.set("n", "<leader>/", function()
@@ -368,6 +440,13 @@ require("lazy").setup({
 					prompt_title = "Live Grep in Open Files",
 				})
 			end, { desc = "[S]earch [/] in Open Files" })
+
+			--vim.keymap.set('n', '<leader>sd', function()
+			-- builtin.live_grep {
+			--  grep_open_files = true,
+			-- prompt_title = 'Live Grep in Open Files',
+			--}
+			--end, { desc = '[S]earch [D]irectories' })
 
 			-- Shortcut for searching your Neovim configuration files
 			vim.keymap.set("n", "<leader>sn", function()
@@ -619,7 +698,7 @@ require("lazy").setup({
 								callSnippet = "Replace",
 							},
 							-- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-							-- diagnostics = { disable = { 'missing-fields' } },
+							diagnostics = { disable = { "missing-fields" } },
 						},
 					},
 				},
@@ -697,7 +776,7 @@ require("lazy").setup({
 				-- python = { "isort", "black" },
 				--
 				-- You can use 'stop_after_first' to run the first available formatter from the list
-				-- javascript = { "prettierd", "prettier", stop_after_first = true },
+				javascript = { "prettier", stop_after_first = true },
 			},
 		},
 	},
@@ -916,8 +995,8 @@ require("lazy").setup({
 	--  Uncomment any of the lines below to enable them (you will need to restart nvim).
 	--
 	-- require 'kickstart.plugins.debug',
-	-- require 'kickstart.plugins.indent_line',
-	-- require 'kickstart.plugins.lint',
+	require("kickstart.plugins.indent_line"),
+	require("kickstart.plugins.lint"),
 	-- require 'kickstart.plugins.autopairs',
 	-- require 'kickstart.plugins.neo-tree',
 	-- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
@@ -959,3 +1038,36 @@ require("lazy").setup({
 --
 -- CUSTOM MACROS
 vim.fn.setreg("l", "yoconsole.log('^C^Cpa'^C^Ci: ^C^Cla, ^C^Cpa);^C^C")
+
+-- CUSTOM KEYMAPS
+vim.keymap.set("n", "<M-j>", "<cmd>cnext<CR>")
+vim.keymap.set("n", "<M-k>", "<cmd>cprev<CR>")
+vim.keymap.set("n", "<leader>e", "<cmd>Neotree toggle right<CR>")
+
+--For surround
+-- vim.keymap.set('n', 's', '<Nop>')
+
+-- TERMINAL CUSTOMISATION:
+local job_id = 0
+vim.keymap.set("n", "<leader>tt", function()
+	vim.cmd.vnew()
+	vim.cmd.term()
+	vim.cmd.wincmd("J")
+	vim.api.nvim_win_set_height(0, 22)
+
+	job_id = vim.bo_channel
+end)
+
+-- vim.keymap.set('n', '<leader>t', function()
+--   vim.fn.chansend(job_id, { 'cd' .. cwd .. '\r\n' })
+-- end)
+
+vim.keymap.set("n", "<leader>h", function()
+	vim.fn.chansend(job_id, { "echo 'hello'" })
+end)
+vim.keymap.set("n", "<leader>ab", function()
+	vim.fn.chansend(job_id, { "anchor build" })
+end)
+vim.keymap.set("n", "<leader>at", function()
+	vim.fn.chansend(job_id, { "anchor test" })
+end)
