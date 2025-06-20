@@ -457,6 +457,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sF', function()
         builtin.find_files {
           hidden = true,
+          no_ignore = true,
         }
       end, { desc = '[S]earch hidden [F]iles' })
 
