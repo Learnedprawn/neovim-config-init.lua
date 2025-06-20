@@ -278,6 +278,10 @@ require('lazy').setup({
     -- use opts = {} for passing setup options
     -- this is equivalent to setup({}) function
   },
+  {
+    'github/copilot.vim',
+  },
+
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
   -- This is often very useful to both group configuration, as well as handle
@@ -1026,6 +1030,22 @@ vim.keymap.set('n', '<M-k>', '<cmd>cprev<CR>')
 vim.keymap.set('n', '<leader>e', '<cmd>Neotree toggle right<CR>')
 vim.keymap.set('n', 'P', '"0p')
 
+-- Toggle GitHub Copilot in Neovim
+local copilot_enabled = true
+
+function ToggleCopilot()
+  if copilot_enabled then
+    vim.cmd 'Copilot disable'
+    print '🤖 Copilot: disabled'
+  else
+    vim.cmd 'Copilot enable'
+    print '🤖 Copilot: enabled'
+  end
+  copilot_enabled = not copilot_enabled
+end
+
+-- Map it to <leader>cp
+vim.api.nvim_set_keymap('n', '<leader>c', ':lua ToggleCopilot()<CR>', { noremap = true, silent = true })
 --For surround
 -- vim.keymap.set('n', 's', '<Nop>')
 
