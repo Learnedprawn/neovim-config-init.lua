@@ -454,6 +454,12 @@ require('lazy').setup({
         }
       end, { desc = '[S]earch [/] in Open Files' })
 
+      vim.keymap.set('n', '<leader>sF', function()
+        builtin.find_files {
+          hidden = true,
+        }
+      end, { desc = '[S]earch hidden [F]iles' })
+
       --vim.keymap.set('n', '<leader>sd', function()
       -- builtin.live_grep {
       --  grep_open_files = true,
