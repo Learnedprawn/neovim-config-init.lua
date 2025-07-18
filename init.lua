@@ -280,6 +280,54 @@ require('lazy').setup({
   },
   {
     'github/copilot.vim',
+    cmd = 'Copilot enable',
+  },
+  {
+    {
+      'supermaven-inc/supermaven-nvim',
+      config = function()
+        require('supermaven-nvim').setup {}
+      end,
+    },
+  },
+  {
+    'ThePrimeagen/harpoon',
+    branch = 'harpoon2',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      local harpoon = require 'harpoon'
+      -- REQUIRED
+      harpoon:setup()
+      -- REQUIRED
+      vim.keymap.set('n', '<leader>a', function()
+        harpoon:list():add()
+      end)
+      vim.keymap.set('n', '<C-e>', function()
+        harpoon.ui:toggle_quick_menu(harpoon:list())
+      end)
+      vim.keymap.set('n', '<C-1>', function()
+        harpoon:list():select(1)
+      end)
+      vim.keymap.set('n', '<C-2>', function()
+        harpoon:list():select(2)
+      end)
+      vim.keymap.set('n', '<C-3>', function()
+        harpoon:list():select(3)
+      end)
+      vim.keymap.set('n', '<C-4>', function()
+        harpoon:list():select(4)
+      end)
+      -- Toggle previous & next buffers stored within Harpoon list
+      vim.keymap.set('n', '<leader>hp', function()
+        harpoon:list():prev()
+      end)
+      vim.keymap.set('n', '<leader>hn', function()
+        harpoon:list():next()
+      end)
+    end,
+  },
+  {
+    'mfussenegger/nvim-jdtls',
   },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
@@ -295,7 +343,6 @@ require('lazy').setup({
   --
   -- Then, because we use the `opts` key (recommended), the configuration runs
   -- after the plugin has been loaded as `require(MODULE).setup(opts)`.
-
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
@@ -458,6 +505,7 @@ require('lazy').setup({
         builtin.find_files {
           hidden = true,
           no_ignore = true,
+          prompt_title = 'Hidden Files Search',
         }
       end, { desc = '[S]earch hidden [F]iles' })
 
@@ -729,6 +777,7 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'ts_ls', -- Used to format TypeScript code
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -957,7 +1006,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'java' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -1038,7 +1087,7 @@ vim.keymap.set('n', '<leader>e', '<cmd>Neotree toggle right<CR>')
 vim.keymap.set('n', 'P', '"0p')
 
 -- Toggle GitHub Copilot in Neovim
-local copilot_enabled = true
+local copilot_enabled = false
 
 function ToggleCopilot()
   if copilot_enabled then
@@ -1062,21 +1111,13 @@ vim.keymap.set('n', '<leader>tt', function()
   vim.cmd.vnew()
   vim.cmd.term()
   vim.cmd.wincmd 'J'
+  -- vim.cmd.wincmd 'i'
   vim.api.nvim_win_set_height(0, 22)
 
   job_id = vim.bo_channel
+  vim.api.nvim_feedkeys('i', 'n', false)
 end)
 
 -- vim.keymap.set('n', '<leader>t', function()
 --   vim.fn.chansend(job_id, { 'cd' .. cwd .. '\r\n' })
 -- end)
-
-vim.keymap.set('n', '<leader>h', function()
-  vim.fn.chansend(job_id, { "echo 'hello'" })
-end)
-vim.keymap.set('n', '<leader>ab', function()
-  vim.fn.chansend(job_id, { 'anchor build' })
-end)
-vim.keymap.set('n', '<leader>at', function()
-  vim.fn.chansend(job_id, { 'anchor test' })
-end)
