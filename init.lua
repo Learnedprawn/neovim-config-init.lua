@@ -9,7 +9,7 @@ vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
--- NOTE: You can change these options as you wish!
+-- - NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
 vim.opt.expandtab = true -- Disable automatically converting tabs to spaces
 vim.opt.tabstop = 4 -- Set tab width to 4 spaces (or your preferred value)
@@ -329,7 +329,57 @@ require('lazy').setup({
   {
     'mfussenegger/nvim-jdtls',
   },
-
+  {
+    'debugloop/telescope-undo.nvim',
+    dependencies = { -- note how they're inverted to above example
+      {
+        'nvim-telescope/telescope.nvim',
+        dependencies = { 'nvim-lua/plenary.nvim' },
+      },
+    },
+    keys = {
+      { -- lazy style key map
+        '<leader>u',
+        '<cmd>Telescope undo<cr>',
+        desc = 'undo history',
+      },
+    },
+    opts = {
+      -- don't use `defaults = { }` here, do this in the main telescope spec
+      extensions = {
+        undo = {
+          side_by_side = true,
+          layout_strategy = 'vertical',
+          layout_config = {
+            preview_height = 0.8, -- telescope-undo.nvim config, see below
+          },
+          -- mappings = {
+          --   i = {
+          --     ['<cr>'] = require('telescope-undo.actions').yank_additions,
+          --     ['<S-cr>'] = require('telescope-undo.actions').yank_deletions,
+          --     ['<C-cr>'] = require('telescope-undo.actions').restore,
+          --     -- alternative defaults, for users whose terminals do questionable things with modified <cr>
+          --     ['<C-y>'] = require('telescope-undo.actions').yank_deletions,
+          --     ['<C-r>'] = require('telescope-undo.actions').restore,
+          --   },
+          --   n = {
+          --     ['y'] = require('telescope-undo.actions').yank_additions,
+          --     ['Y'] = require('telescope-undo.actions').yank_deletions,
+          --     ['u'] = require('telescope-undo.actions').restore,
+          --   },
+          -- },
+          -- no other extensions here, they can have their own spec too
+        },
+      },
+    },
+    config = function(_, opts)
+      -- Calling telescope's setup from multiple specs does not hurt, it will happily merge the
+      -- configs for us. We won't use data, as everything is in it's own namespace (telescope
+      -- defaults, as well as each extension).
+      require('telescope').setup(opts)
+      require('telescope').load_extension 'undo'
+    end,
+  },
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
   -- This is often very useful to both group configuration, as well as handle
