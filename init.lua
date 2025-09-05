@@ -269,6 +269,7 @@ require('lazy').setup({
     opts = {
       -- your config goes here
       -- or just leave it empty :)
+      debounce_delay = 5000, -- delay after which a pending save is executed
     },
   },
   {
@@ -298,9 +299,14 @@ require('lazy').setup({
       local harpoon = require 'harpoon'
       -- REQUIRED
       harpoon:setup()
+      local harpoon_extensions = require 'harpoon.extensions'
+      harpoon:extend(harpoon_extensions.builtins.highlight_current_file())
       -- REQUIRED
       vim.keymap.set('n', '<leader>a', function()
         harpoon:list():add()
+      end)
+      vim.keymap.set('n', '<leader>r', function()
+        harpoon:list():remove()
       end)
       vim.keymap.set('n', '<C-e>', function()
         harpoon.ui:toggle_quick_menu(harpoon:list())
@@ -318,14 +324,56 @@ require('lazy').setup({
         harpoon:list():select(4)
       end)
       -- Toggle previous & next buffers stored within Harpoon list
-      vim.keymap.set('n', '<leader>hp', function()
+      vim.keymap.set('n', '<leader>p', function()
         harpoon:list():prev()
       end)
-      vim.keymap.set('n', '<leader>hn', function()
+      vim.keymap.set('n', '<leader>n', function()
         harpoon:list():next()
       end)
     end,
   },
+  {
+    'nvimtools/none-ls.nvim',
+    event = 'VeryLazy',
+    opts = function()
+      local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
+      local null_ls = require 'null-ls'
+      local opts = {
+        sources = {
+          null_ls.builtins.formatting.prettierd,
+        },
+        on_attach = function(client, bufnr)
+          if client.supports_method 'textDocument/formatting' then
+            vim.api.nvim_clear_autocmds {
+              group = augroup,
+              buffer = bufnr,
+            }
+            vim.api.nvim_create_autocmd('BufWritePre', {
+              group = augroup,
+              buffer = bufnr,
+              callback = function()
+                vim.lsp.buf.format { bufnr = bufnr }
+              end,
+            })
+          end
+        end,
+      }
+      return opts
+    end,
+  },
+  {
+    'windwp/nvim-ts-autotag',
+    ft = {
+      'javascript',
+      'typescript',
+      'javascriptreact',
+      'typescriptreact',
+    },
+    config = function()
+      require('nvim-ts-autotag').setup()
+    end,
+  },
+
   {
     'mfussenegger/nvim-jdtls',
   },
@@ -884,7 +932,8 @@ require('lazy').setup({
         -- python = { "isort", "black" },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        javascript = { 'prettier', stop_after_first = true },
+        javascript = { 'prettierd', stop_after_first = true },
+        react = { 'prettierd', stop_after_first = true },
       },
     },
   },
