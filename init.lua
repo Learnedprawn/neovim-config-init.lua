@@ -1183,7 +1183,13 @@ vim.fn.setreg('l', "yoconsole.log('^C^Cpa'^C^Ci: ^C^Cla, ^C^Cpa);^C^C")
 vim.keymap.set('n', '<M-j>', '<cmd>cnext<CR>')
 vim.keymap.set('n', '<M-k>', '<cmd>cprev<CR>')
 vim.keymap.set('n', '<leader>e', '<cmd>Neotree toggle right<CR>')
-vim.keymap.set('n', 'P', '"0p')
+-- vim.keymap.set('n', 'P', '"0p')
+-- Y works like y, but stores into register z
+vim.keymap.set('n', 'Y', '"zy', { noremap = true })
+vim.keymap.set('x', 'Y', '"zy', { noremap = true })
+
+-- P pastes from register z
+vim.keymap.set('n', 'P', '"zp', { noremap = true })
 
 -- Toggle GitHub Copilot in Neovim
 local copilot_enabled = false
